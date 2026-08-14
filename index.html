@@ -2,7 +2,14 @@
 <html lang="km">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Proof of Delivery">
+<meta name="theme-color" content="#F9F8F3">
+<link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Proof%20of%20Delivery%22%2C%22short_name%22%3A%22POD%22%2C%22description%22%3A%22Proof%20of%20Delivery%20Document%20Generator%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F9F8F3%22%2C%22theme_color%22%3A%22%23F9F8F3%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D'>
+<link rel="apple-touch-icon" href="icon.png">
 <title>Proof of Delivery</title>
 <link rel="icon" type="image/png" href="icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Hanuman:wght@400;700&family=Cormorant+Garamond:wght@600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -59,10 +66,15 @@
 body, input, button, select, textarea {
   font-family: 'DM Sans', 'Battambang', 'Khmer OS Battambang', 'Hanuman', sans-serif;
 }
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
 body {
   background: var(--bg);
   color: var(--dark);
   min-height: 100vh;
+  touch-action: pan-y;
 }
 
 /* ═══════════════════════════════════════
@@ -215,7 +227,7 @@ textarea, select {
   border: 1px solid transparent;
   border-radius: 8px;
   padding: .55rem .75rem;
-  font-size: .9rem;
+  font-size: 16px;
   color: var(--dark);
   font-family: 'DM Sans', 'Battambang', sans-serif;
   width: 100%;
@@ -311,7 +323,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   border: 1.5px solid var(--border);
   border-radius: 7px;
   padding: .4rem .2rem;
-  font-size: .88rem;
+  font-size: 16px;
   color: var(--dark);
   font-family: 'DM Sans', sans-serif;
   text-align: center;
@@ -1044,11 +1056,31 @@ textarea.f-rem {
   .card-full { grid-column: 1; }
   .page { padding: 1.5rem 1rem 3rem; }
   .g2 { grid-template-columns: 1fr; }
+  
+  .top-bar {
+    flex-wrap: wrap;
+    padding-bottom: 1rem;
+  }
+  .top-actions {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+  }
+  .top-actions::-webkit-scrollbar { display: none; }
+  
+  .table-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    scrollbar-width: none;
+  }
+  .table-scroll-wrapper::-webkit-scrollbar { display: none; }
+  .table-scroll-inner { min-width: 600px; padding-bottom: 4px; }
 }
 
 @media (max-width: 480px) {
-  .items-hd, .item-row { grid-template-columns: 1.6fr .9fr .5fr .5fr 1.1fr; }
-  .top-bar { flex-wrap: wrap; }
   .modal-options { grid-template-columns: repeat(4, 1fr); }
 }
 
@@ -1403,15 +1435,19 @@ body.lang-bilingual #printDoc .pd-hint {
         </div>
       </div>
 
-      <div class="items-hd">
-        <span><span class="lang-km">ឈ្មោះ</span><span class="lang-divider"> / </span><span class="lang-en">Item</span></span>
-        <span class="col-id"><span class="lang-km">លេខសម្គាល់</span><span class="lang-divider"> / </span><span class="lang-en">ID/Ref</span></span>
-        <span><span class="lang-km">បរិ.</span><span class="lang-divider"> / </span><span class="lang-en">Qty</span></span>
-        <span><span class="lang-km">ទំព័រ</span><span class="lang-divider"> / </span><span class="lang-en">Pages</span></span>
-        <span><span class="lang-km">កំណត់ចំណាំ</span><span class="lang-divider"> / </span><span class="lang-en">Remark</span></span>
-      </div>
+      <div class="table-scroll-wrapper">
+        <div class="table-scroll-inner">
+          <div class="items-hd">
+            <span><span class="lang-km">ឈ្មោះ</span><span class="lang-divider"> / </span><span class="lang-en">Item</span></span>
+            <span class="col-id"><span class="lang-km">លេខសម្គាល់</span><span class="lang-divider"> / </span><span class="lang-en">ID/Ref</span></span>
+            <span><span class="lang-km">បរិ.</span><span class="lang-divider"> / </span><span class="lang-en">Qty</span></span>
+            <span><span class="lang-km">ទំព័រ</span><span class="lang-divider"> / </span><span class="lang-en">Pages</span></span>
+            <span><span class="lang-km">កំណត់ចំណាំ</span><span class="lang-divider"> / </span><span class="lang-en">Remark</span></span>
+          </div>
 
-      <div id="itemRows"></div>
+          <div id="itemRows"></div>
+        </div>
+      </div>
 
       <div class="row-ctrl">
         <span><span class="lang-km">ចំនួនជួរ</span><span class="lang-divider"> / </span><span class="lang-en">Rows</span>:</span>
