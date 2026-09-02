@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>POD Scanner</title>
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23E00028" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>'>
+  <link rel="apple-touch-icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23E00028" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>'>
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Hanuman:wght@400;700&family=Cormorant+Garamond:wght@600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    :root {
+      --bg: #c0c0c0;
+      --text: #000000;
+      --border-light: #ffffff;
+      --border-dark: #808080;
+      --border-darker: #000000;
+      --btn-bg: #c0c0c0;
+      --desktop: #008080;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif; 
+      background: var(--bg); color: var(--text); padding: 1rem; 
+      display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+    }
+    
+    #setupScreen {
+      display: flex; flex-direction: column; height: 100%; justify-content: center;
+    }
+    #mainScreen {
+      display: flex; flex-direction: column; height: 100%;
+    }
+    #mainScreen { display: none; }
+    
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; }
+    
+    .name-grid { display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; }
+    button, .tap-to-scan, .name-btn {
+      padding: 1rem; border-radius: 6px;
+      background: var(--btn-bg); color: var(--text); font-size: 1rem; cursor: pointer;
+      width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      display: flex; align-items: center; justify-content: center; font-family: inherit;
+      font-weight: normal;
+      border: 2px solid var(--border-light);
+      border-right-color: var(--border-dark);
+      border-bottom-color: var(--border-dark);
+      box-shadow: 1px 1px 0 var(--border-darker);
+    }
+    button:active, .tap-to-scan:active, .name-btn:active { 
+      border: 2px solid var(--border-dark);
+      border-right-color: var(--border-light);
+      border-bottom-color: var(--border-light);
+      transform: none;
+      box-shadow: none;
+      padding-top: calc(1rem + 1px);
+      padding-left: calc(1rem + 1px);
+      padding-bottom: calc(1rem - 1px);
+      padding-right: calc(1rem - 1px);
+    }
+    .tap-to-scan { 
+      font-size: 1.2rem; margin: auto 0; font-weight: bold;
+      color: #33ff33;
+      text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 0 10px rgba(51, 255, 51, 0.8);
+    }
+    
+    .delivery-info { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 20vh; }
+    .greeting { font-weight: bold; font-size: 2rem; }
+    
+    #offlineBanner { background: #000080; color: #ffffff; padding: 0.5rem; text-align: center; font-size: 0.8rem; margin-bottom: 1rem; display: none; border-radius: 6px; font-weight: bold; }
+    
+    .scan-area { 
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
+      gap: 1rem; overflow-y: auto; padding-bottom: 2rem; width: 100%;
+    }
+    
+    #reader-container { 
+      display: none; background: #000; position: relative; z-index: 10; 
+      width: 100%; aspect-ratio: 1 / 1; flex-shrink: 0;
+      border-radius: 16px; overflow: hidden; 
+      border: 2px solid var(--border-dark);
+      border-right-color: var(--border-light);
+      border-bottom-color: var(--border-light);
+    }
+    #reader { width: 100%; height: 100%; position: relative; }
+    #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; filter: none; }
+    
+
+    
+    .action-stack {
+      width: 100%; position: relative;
+      display: flex; flex-direction: column; gap: 0.5rem; z-index: 20;
+    }
+    
+    .logout-btn, .flash-btn, .zoom-btn { 
+      padding: 1rem; width: 100%; border-radius: 6px; font-size: 1rem; cursor: pointer; 
+      background: var(--btn-bg); color: var(--text); display: flex; align-items: center; justify-content: center; 
+      border: 2px solid var(--border-light); border-right-color: var(--border-dark); border-bottom-color: var(--border-dark);
+      box-shadow: 1px 1px 0 var(--border-darker);
+    }
+    .flash-btn, .zoom-btn { display: none; }
+    .cancel-btn { 
+      padding: 1rem; width: 100%; border-radius: 6px; font-size: 1rem; cursor: pointer; 
+      background: var(--btn-bg); color: var(--text); display: none; align-items: center; justify-content: center; 
+      border: 2px solid var(--border-light); border-right-color: var(--border-dark); border-bottom-color: var(--border-dark);
+      box-shadow: 1px 1px 0 var(--border-darker);
+    }
+    
+    .logout-btn:active, .cancel-btn:active, .flash-btn:active, .zoom-btn:active { 
+      border: 2px solid var(--border-dark); border-right-color: var(--border-light); border-bottom-color: var(--border-light);
+      transform: none; box-shadow: none;
+      padding-top: calc(1rem + 1px); padding-left: calc(1rem + 1px); padding-bottom: calc(1rem - 1px); padding-right: calc(1rem - 1px);
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      background: #ffffcc; color: #000; padding: 0.5rem 1rem; border-radius: 6px;
+      display: none; white-space: nowrap; z-index: 200; font-size: 0.9rem;
+      border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+    }
+    .toast.show { display: block; }
+    
+    #flashOverlay {
+      position: fixed; inset: 0; z-index: 100; display: none;
+      justify-content: center; align-items: center; text-align: center;
+      font-size: 1.5rem; color: #fff; padding: 2rem; font-weight: bold;
+    }
+    #flashOverlay.show { display: flex; }
+    #flashOverlay.green { background: #008000; }
+    #flashOverlay.red { background: #800000; }
+  </style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setupScreen">
+  <h1>Welcome</h1>
+  <p>Select your name:</p>
+  <div id="messengerNameList" class="name-grid">
+    <div>Loading names...</div>
+  </div>
+</div>
+
+<!-- MAIN SCREEN -->
+<div id="mainScreen">
+  <div id="offlineBanner">Offline Mode</div>
+  
+  <div class="scan-area">
+    <div class="delivery-info">
+      <div class="greeting" id="greetingText">Name</div>
+    </div>
+    
+    <div id="reader-container">
+      <div id="reader"></div>
+    </div>
+
+    <div class="action-stack">
+      <button class="tap-to-scan" id="btnStartScan" onclick="startScanner()">Tap to Scan</button>
+      <button class="logout-btn" id="btnLogout" onclick="logout()">Change Name</button>
+      <button class="flash-btn" id="btnToggleFlash" onclick="toggleFlash()">Toggle Flash</button>
+      <button class="zoom-btn" id="btnToggleZoom" onclick="toggleZoom()">Toggle 2x Zoom</button>
+      <button class="cancel-btn" id="btnCancelScan" onclick="stopScanner()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="flashOverlay">Message</div>
+<div class="toast" id="toast">Message</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbwq1lBS0jKE7cnnk72tgoJGiF6mk0FwQ0F9QSAIr3RuBPT5j65faYaex7THuJYfjyvrCw/exec"; 
+  
+  let messengerName = localStorage.getItem('messengerName') || '';
+  
+  // Secret Device ID Generation
+  let deviceId = localStorage.getItem('__deviceId');
+  if(!deviceId) {
+    deviceId = 'dev_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+    localStorage.setItem('__deviceId', deviceId);
+  }
+  
+  let html5QrcodeScanner = null;
+  let isScanning = false;
+  
+  // Offline Queue State
+  let offlineQueue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+  
+  // Init
+  if(messengerName) {
+    showMainScreen();
+  } else {
+    fetchMessengers();
+  }
+
+  // Event Listeners for Offline Mode
+  window.addEventListener('online', updateNetworkStatus);
+  window.addEventListener('offline', updateNetworkStatus);
+  updateNetworkStatus();
+
+  function updateNetworkStatus() {
+    const banner = document.getElementById('offlineBanner');
+    if (navigator.onLine) {
+      banner.style.display = 'none';
+      syncOfflineQueue();
+    } else {
+      banner.style.display = 'block';
+    }
+  }
+
+  async function syncOfflineQueue() {
+    if (offlineQueue.length === 0) return;
+    
+    showToast(`Syncing ${offlineQueue.length} pending scans...`);
+    let syncedCount = 0;
+    
+    // Copy the queue so we don't manipulate it while iterating
+    const currentQueue = [...offlineQueue];
+    
+    for (const scan of currentQueue) {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ 
+            action: 'markDelivered', 
+            id: scan.id, 
+            messengerName: scan.messengerName,
+            deviceId: scan.deviceId,
+            timestamp: scan.timestamp
+          })
+        });
+        const json = await res.json();
+        if (json.success || json.message === 'Already delivered') {
+          // Remove from original queue
+          offlineQueue = offlineQueue.filter(q => q.id !== scan.id);
+          localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+          syncedCount++;
+        }
+      } catch (e) {
+        // If network fails during sync, stop syncing
+        break;
+      }
+    }
+    
+    if (syncedCount > 0) {
+      showToast(`Successfully synced ${syncedCount} scans!`);
+    }
+  }
+  
+  async function fetchMessengers() {
+    if (!navigator.onLine) {
+      document.getElementById('messengerNameList').innerHTML = '<div style="color:var(--primary)">Cannot load names while offline</div>';
+      return;
+    }
+    try {
+      const res = await fetch(API_URL + "?action=getMessengers");
+      const json = await res.json();
+      if(json.success) {
+        const list = document.getElementById('messengerNameList');
+        list.innerHTML = '';
+        json.data.forEach(name => {
+          list.innerHTML += `<button class="name-btn" onclick="saveName('${name}')">${name}</button>`;
+        });
+      }
+    } catch(e) {
+      document.getElementById('messengerNameList').innerHTML = '<div style="color:var(--primary)">Error loading names</div>';
+    }
+  }
+  
+  function saveName(name) {
+    if(!name) return;
+    messengerName = name;
+    localStorage.setItem('messengerName', messengerName);
+    showMainScreen();
+  }
+  
+  function logout() {
+    localStorage.removeItem('messengerName');
+    messengerName = '';
+    document.getElementById('setupScreen').style.display = 'flex';
+    document.getElementById('mainScreen').style.display = 'none';
+    fetchMessengers();
+  }
+  
+  function showMainScreen() {
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'flex';
+    document.getElementById('greetingText').innerText = messengerName;
+    
+    // Auto-start scanner
+    setTimeout(() => {
+      startScanner();
+    }, 500); // Allow UI to render first
+  }
+  
+  async function startScanner() {
+    document.getElementById('btnStartScan').style.display = 'none';
+    document.getElementById('btnLogout').style.display = 'none';
+    document.getElementById('reader-container').style.display = 'block';
+    document.getElementById('btnCancelScan').style.display = 'flex';
+    
+    if(!html5QrcodeScanner) {
+      html5QrcodeScanner = new Html5Qrcode("reader");
+    }
+    
+    try {
+      await html5QrcodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 15, aspectRatio: window.innerWidth / window.innerHeight },
+        onScanSuccess,
+        onScanFailure
+      );
+      isScanning = true;
+      document.getElementById('btnToggleFlash').style.display = 'flex';
+      document.getElementById('btnToggleZoom').style.display = 'flex';
+      isZoomed = false;
+      
+
+    } catch(err) {
+      showToast("Error starting camera: " + err);
+      resetScannerUI();
+    }
+  }
+  
+  let isFlashOn = false;
+  function toggleFlash() {
+    if (!isScanning || !html5QrcodeScanner) return;
+    isFlashOn = !isFlashOn;
+    try {
+      if (html5QrcodeScanner.applyVideoConstraints) {
+        html5QrcodeScanner.applyVideoConstraints({ advanced: [{ torch: isFlashOn }] })
+          .catch(e => { showToast("Flash not supported"); isFlashOn = !isFlashOn; });
+      }
+    } catch(e) {
+      showToast("Flash not supported");
+      isFlashOn = !isFlashOn;
+    }
+  }
+
+  let isZoomed = false;
+  function toggleZoom() {
+    if (!isScanning) return;
+    isZoomed = !isZoomed;
+    const videoObj = document.querySelector('#reader video');
+    if (videoObj) {
+      if (isZoomed) {
+        videoObj.style.transform = 'scale(2)';
+        videoObj.style.transformOrigin = 'center';
+      } else {
+        videoObj.style.transform = 'scale(1)';
+      }
+    }
+  }
+
+  async function stopScanner() {
+    isFlashOn = false;
+    isZoomed = false;
+    if(html5QrcodeScanner && isScanning) {
+      try {
+        await html5QrcodeScanner.stop();
+      } catch (err) {
+        console.error("Failed to stop scanner", err);
+      }
+    }
+    isScanning = false;
+    resetScannerUI();
+  }
+  
+  let lastInvalidQR = '';
+  let recentScans = new Set();
+  
+  async function onScanSuccess(decodedText, decodedResult) {
+    if(!isScanning) return;
+    
+    // Accept ONLY our unique QR code format (Must start with POD-)
+    if (!/^POD\-[A-Za-z0-9\-]{3,40}$/.test(decodedText)) {
+      if (lastInvalidQR !== decodedText) {
+        showFlash('red', "Invalid QR:\nUnrecognized format");
+        lastInvalidQR = decodedText;
+        setTimeout(() => { if (lastInvalidQR === decodedText) lastInvalidQR = ''; }, 3000);
+      }
+      return; 
+    }
+    
+    let scannedId = decodedText;
+    
+    if (recentScans.has(scannedId)) return;
+    
+    // Add to recent scans and allow rescan after 5 seconds
+    recentScans.add(scannedId);
+    setTimeout(() => recentScans.delete(scannedId), 5000);
+    
+    await submitScan(scannedId);
+  }
+
+  async function submitScan(scannedId) {
+    showFlash('green', `Scanned:\n${scannedId}`);
+    
+    const payload = {
+      id: scannedId,
+      messengerName: messengerName,
+      deviceId: deviceId,
+      timestamp: new Date().toISOString()
+    };
+
+    if (!navigator.onLine) {
+      queueOffline(payload);
+      return;
+    }
+    
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'markDelivered', ...payload })
+      });
+      const json = await res.json();
+      
+      if(!json.success && json.message !== 'Already delivered') {
+        showToast('Error on server: ' + json.error);
+        queueOffline(payload);
+      } else if (json.message === 'Already delivered') {
+        showToast('Already delivered: ' + scannedId);
+      } else {
+        showToast('Delivered: ' + scannedId);
+      }
+    } catch(e) {
+      showToast('Network error, saving offline');
+      queueOffline(payload);
+    }
+  }
+  
+  function queueOffline(payload) {
+    // Check if already in queue
+    if (!offlineQueue.some(item => item.id === payload.id)) {
+      offlineQueue.push(payload);
+      localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue));
+      showToast(`Saved offline: ${payload.id}`);
+    }
+  }
+
+  function onScanFailure(error) { 
+    // Ignore routine scan failures
+  }
+  
+  function resetScannerUI() {
+    document.getElementById('btnStartScan').style.display = 'flex';
+    document.getElementById('btnLogout').style.display = 'flex';
+    document.getElementById('reader-container').style.display = 'none';
+    document.getElementById('btnCancelScan').style.display = 'none';
+    document.getElementById('btnToggleFlash').style.display = 'none';
+    document.getElementById('btnToggleZoom').style.display = 'none';
+  }
+  
+
+  
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function showFlash(type, msg) {
+    const flash = document.getElementById('flashOverlay');
+    flash.innerText = msg;
+    flash.className = 'show ' + type;
+    if(navigator.vibrate) navigator.vibrate(type === 'green' ? [100] : [50, 100, 50]);
+    setTimeout(() => { flash.className = ''; }, 600);
+  }
+</script>
+</body>
+</html>
