@@ -17,124 +17,113 @@
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     :root {
-      --bg: #c0c0c0;
-      --text: #000000;
-      --border-light: #ffffff;
-      --border-dark: #808080;
-      --border-darker: #000000;
-      --btn-bg: #c0c0c0;
-      --desktop: #008080;
+      --bg: #F9F8F3;
+      --dark: #2C2A26;
+      --red: #E00028;
+      --mid: #8A877E;
+      --muted: #B0AD9E;
+      --border: #E6E2D3;
+      --white: #FFFFFF;
+      --input-bg: #F4F3ED;
+      
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
-      font-family: 'Pixelated MS Sans Serif', 'MS Sans Serif', Tahoma, sans-serif; 
-      background: var(--bg); color: var(--text); padding: 1rem; 
+      font-family: 'DM Sans', 'Battambang', 'Hanuman', sans-serif;
+      background: var(--bg); color: var(--dark); padding: 1.5rem; 
       display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+      padding-top: calc(1.5rem + var(--safe-top));
+      padding-bottom: calc(1.5rem + var(--safe-bottom));
     }
     
     #setupScreen {
       display: flex; flex-direction: column; height: 100%; justify-content: center;
+      max-width: 400px; margin: 0 auto; width: 100%;
     }
     #mainScreen {
       display: flex; flex-direction: column; height: 100%;
+      max-width: 500px; margin: 0 auto; width: 100%;
     }
     #mainScreen { display: none; }
     
-    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    p { margin-bottom: 1rem; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--dark); }
+    p { margin-bottom: 1.5rem; color: var(--mid); }
     
-    .name-grid { display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; }
+    .name-grid { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; padding-bottom: 2rem; }
+    
     button, .tap-to-scan, .name-btn {
-      padding: 1rem; border-radius: 6px;
-      background: var(--btn-bg); color: var(--text); font-size: 1rem; cursor: pointer;
+      padding: 1rem; border-radius: 12px;
+      background: var(--white); color: var(--dark); font-size: 1.1rem; cursor: pointer;
       width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       display: flex; align-items: center; justify-content: center; font-family: inherit;
-      font-weight: normal;
-      border: 2px solid var(--border-light);
-      border-right-color: var(--border-dark);
-      border-bottom-color: var(--border-dark);
-      box-shadow: 1px 1px 0 var(--border-darker);
+      font-weight: 600; border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(44, 42, 38, 0.05);
+      transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
     }
+    
     button:active, .tap-to-scan:active, .name-btn:active { 
-      border: 2px solid var(--border-dark);
-      border-right-color: var(--border-light);
-      border-bottom-color: var(--border-light);
-      transform: none;
-      box-shadow: none;
-      padding-top: calc(1rem + 1px);
-      padding-left: calc(1rem + 1px);
-      padding-bottom: calc(1rem - 1px);
-      padding-right: calc(1rem - 1px);
+      transform: scale(0.98);
+      background: var(--input-bg);
     }
+    
     .tap-to-scan { 
       font-size: 1.2rem; margin: auto 0; font-weight: bold;
+      background: var(--dark); color: var(--white); border-color: var(--dark);
     }
+    .tap-to-scan:active { background: #1a1917; color: var(--white); }
     
-    .delivery-info { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 20vh; }
-    .greeting { font-weight: bold; font-size: 2rem; }
+    .cancel-btn { color: var(--red); }
     
-    #offlineBanner { background: #000080; color: #ffffff; padding: 0.5rem; text-align: center; font-size: 0.8rem; margin-bottom: 1rem; display: none; border-radius: 6px; font-weight: bold; }
+    .delivery-info { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2vh 0; }
+    .greeting { font-weight: 700; font-size: 2rem; color: var(--dark); }
+    
+    #offlineBanner { 
+      background: #FFEBEB; color: var(--red); padding: 0.75rem; 
+      text-align: center; font-size: 0.9rem; margin-bottom: 1rem; 
+      display: none; border-radius: 8px; font-weight: 600; 
+      border: 1px solid rgba(224,0,40,0.2);
+    }
     
     .scan-area { 
       flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; 
-      gap: 1rem; overflow-y: auto; padding-bottom: 2rem; width: 100%;
+      gap: 1.5rem; overflow-y: auto; padding-bottom: 2rem; width: 100%;
     }
     
     #reader-container { 
-      display: none; background: #000; position: relative; z-index: 10; 
+      display: none; background: var(--dark); position: relative; z-index: 10; 
       width: 100%; aspect-ratio: 1 / 1; flex-shrink: 0;
-      border-radius: 16px; overflow: hidden; 
-      border: 2px solid var(--border-dark);
-      border-right-color: var(--border-light);
-      border-bottom-color: var(--border-light);
+      border-radius: 20px; overflow: hidden; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     }
     #reader { width: 100%; height: 100%; position: relative; }
     #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; filter: none; }
     
-
-    
     .action-stack {
       width: 100%; position: relative;
-      display: flex; flex-direction: column; gap: 0.5rem; z-index: 20;
+      display: flex; flex-direction: column; gap: 0.75rem; z-index: 20;
     }
     
-    .logout-btn, .flash-btn, .zoom-btn { 
-      padding: 1rem; width: 100%; border-radius: 6px; font-size: 1rem; cursor: pointer; 
-      background: var(--btn-bg); color: var(--text); display: flex; align-items: center; justify-content: center; 
-      border: 2px solid var(--border-light); border-right-color: var(--border-dark); border-bottom-color: var(--border-dark);
-      box-shadow: 1px 1px 0 var(--border-darker);
-    }
-    .flash-btn, .zoom-btn { display: none; }
-    .cancel-btn { 
-      padding: 1rem; width: 100%; border-radius: 6px; font-size: 1rem; cursor: pointer; 
-      background: var(--btn-bg); color: var(--text); display: none; align-items: center; justify-content: center; 
-      border: 2px solid var(--border-light); border-right-color: var(--border-dark); border-bottom-color: var(--border-dark);
-      box-shadow: 1px 1px 0 var(--border-darker);
-    }
-    
-    .logout-btn:active, .cancel-btn:active, .flash-btn:active, .zoom-btn:active { 
-      border: 2px solid var(--border-dark); border-right-color: var(--border-light); border-bottom-color: var(--border-light);
-      transform: none; box-shadow: none;
-      padding-top: calc(1rem + 1px); padding-left: calc(1rem + 1px); padding-bottom: calc(1rem - 1px); padding-right: calc(1rem - 1px);
-    }
+    .flash-btn, .zoom-btn, .cancel-btn { display: none; }
     
     /* Toast */
     .toast {
-      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
-      background: #ffffcc; color: #000; padding: 0.5rem 1rem; border-radius: 6px;
-      display: none; white-space: nowrap; z-index: 200; font-size: 0.9rem;
-      border: 1px solid #000; box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+      position: fixed; bottom: calc(2rem + var(--safe-bottom)); left: 50%; transform: translateX(-50%);
+      background: var(--dark); color: var(--white); padding: 1rem 1.5rem; border-radius: 12px;
+      display: none; white-space: normal; word-wrap: break-word; z-index: 200; font-size: 0.95rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2); text-align: center; max-width: 90vw; font-weight: 500;
     }
     .toast.show { display: block; }
     
     #flashOverlay {
       position: fixed; inset: 0; z-index: 100; display: none;
       justify-content: center; align-items: center; text-align: center;
-      font-size: 1.5rem; color: #fff; padding: 2rem; font-weight: bold;
+      font-size: 1.5rem; color: var(--white); padding: 2rem; font-weight: bold;
     }
     #flashOverlay.show { display: flex; }
-    #flashOverlay.green { background: #008000; }
-    #flashOverlay.red { background: #800000; }
+    #flashOverlay.green { background: rgba(51, 204, 102, 0.95); }
+    #flashOverlay.red { background: rgba(224, 0, 40, 0.95); }
   </style>
 </head>
 <body>
@@ -299,7 +288,11 @@
     }, 500); // Allow UI to render first
   }
   
+  let isStartingCamera = false;
   async function startScanner() {
+    if (isStartingCamera || isScanning) return;
+    isStartingCamera = true;
+    
     document.getElementById('btnStartScan').style.display = 'none';
     document.getElementById('btnLogout').style.display = 'none';
     document.getElementById('reader-container').style.display = 'block';
@@ -312,6 +305,13 @@
     }
     
     try {
+      // Check if it's already in scanning state (2 = SCANNING)
+      if (html5QrcodeScanner.getState && html5QrcodeScanner.getState() === 2) {
+        isScanning = true;
+        isStartingCamera = false;
+        return;
+      }
+      
       await html5QrcodeScanner.start(
         { 
           facingMode: "environment",
@@ -333,12 +333,15 @@
       document.getElementById('btnToggleFlash').style.display = 'flex';
       document.getElementById('btnToggleZoom').style.display = 'flex';
       isZoomed = false;
-      
-
     } catch(err) {
-      showToast("Error starting camera: " + err);
-      resetScannerUI();
+      if (String(err).includes("already under transition") || String(err).includes("is already scanning")) {
+        console.warn("Scanner transition overlap ignored.", err);
+      } else {
+        showToast("Error starting camera: " + err);
+        resetScannerUI();
+      }
     }
+    isStartingCamera = false;
   }
   
   let isFlashOn = false;
