@@ -80,7 +80,7 @@
     
     #reader-container { 
       display: none; background: #000; position: relative; z-index: 10; 
-      width: 100%; aspect-ratio: 1 / 1; flex-shrink: 0;
+      width: 100%; aspect-ratio: 2.5 / 1; flex-shrink: 0;
       border-radius: 16px; overflow: hidden; 
       border: 2px solid var(--border-dark);
       border-right-color: var(--border-light);
@@ -312,7 +312,7 @@
     try {
       await html5QrcodeScanner.start(
         { facingMode: "environment" },
-        { fps: 10 },
+        { fps: 10, aspectRatio: 2.5 },
         onScanSuccess,
         onScanFailure
       );
