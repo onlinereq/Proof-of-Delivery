@@ -390,7 +390,7 @@
     if(!isScanning) return;
     
     let text = decodedText.trim();
-    let match = text.match(/(POD\-[^\s]{5,100})/);
+    let match = text.match(/(POD\-[A-Za-z0-9\-]{5,100})/);
     
     // Accept ONLY our unique QR code format (Must contain POD-)
     if (!match) {
