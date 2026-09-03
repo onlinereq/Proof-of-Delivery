@@ -281,11 +281,6 @@
     document.getElementById('setupScreen').style.display = 'none';
     document.getElementById('mainScreen').style.display = 'flex';
     document.getElementById('greetingText').innerText = messengerName;
-    
-    // Auto-start scanner
-    setTimeout(() => {
-      startScanner();
-    }, 500); // Allow UI to render first
   }
   
   let isStartingCamera = false;
