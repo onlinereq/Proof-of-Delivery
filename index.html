@@ -764,11 +764,12 @@ textarea.f-rem {
   position: relative;
 }
 
-#qrcode-container canvas,
-#qrcode-container img {
+#barcode-container svg,
+#barcode-container img,
+#barcode-container canvas {
   width: 100% !important;
   height: 100% !important;
-  object-fit: contain;
+  object-fit: contain !important;
 }
 
 #printDoc .pd-logo {
@@ -1402,8 +1403,8 @@ body.lang-bilingual #printDoc .pd-hint {
 .search-bar { display: flex; gap: 1rem; margin-bottom: 2rem; }
 .search-bar input { flex: 1; background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; font-size: 16px; font-family: inherit; outline: none; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: all .2s; }
 .search-bar input:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
-.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-.history-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+.history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.history-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
 .history-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
 .history-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
 .history-card-title { font-weight: 700; font-size: 1.1rem; color: var(--red); margin-bottom: 0.25rem; }
@@ -1411,13 +1412,13 @@ body.lang-bilingual #printDoc .pd-hint {
 .history-card-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; }
 .history-card-label { color: var(--mid); font-size: 0.8rem; }
 .history-card-value { font-weight: 500; text-align: right; max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.history-modal { background: var(--white); border-radius: 16px; padding: 2rem; width: 800px; max-width: 90vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.1); transform: translateY(12px); transition: transform .2s; }
+.history-modal { background: var(--bg); border-radius: 0; padding: 2rem 4rem; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; overflow: hidden; box-shadow: none; transform: translateY(12px); transition: transform .2s; }
 .modal-overlay.open .history-modal { transform: translateY(0); }
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
-.detail-item { background: var(--input-bg); padding: 1rem; border-radius: 8px; }
-.detail-label { font-size: 0.75rem; color: var(--mid); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-.detail-value { font-weight: 500; }
-.items-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+.detail-item { background: var(--input-bg); padding: 0.5rem 0.75rem; border-radius: 6px; }
+.detail-label { font-size: 0.75rem; color: var(--mid); margin-bottom: 0.15rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.detail-value { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.items-table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
 .items-table th { text-align: left; padding: 0.5rem; font-size: 0.8rem; color: var(--mid); border-bottom: 1px solid var(--border); }
 .items-table td { padding: 0.5rem; font-size: 0.9rem; border-bottom: 1px solid var(--input-bg); }
 .empty-state { text-align: center; padding: 4rem; color: var(--muted); font-size: 1.1rem; }
@@ -1918,7 +1919,7 @@ body.lang-bilingual #printDoc .pd-hint {
       <input type="text" id="searchInput" placeholder="Search by Sender, Receiver, or Title..." oninput="renderHistory()">
     </div>
     
-    <div id="historyGrid" class="history-grid" style="overflow-y: auto; padding-right: 0.5rem;">
+    <div id="historyGrid" class="history-grid" style="flex-grow: 1; overflow-y: auto; padding-right: 0.5rem; padding-bottom: 2rem;">
       <!-- Cards will be rendered here -->
     </div>
   </div>
@@ -1945,7 +1946,7 @@ body.lang-bilingual #printDoc .pd-hint {
     <span id="pdLogoFb" class="pd-logo-fb" style="display:none">LOCKTON IBS</span>
     <div class="pd-company" id="pdCompanyPrint" style="white-space: nowrap; width: 100%; overflow: hidden; text-overflow: clip;"></div>
     <div class="pd-badge" id="pdBadge"><span class="lang-km">ឯកសារបញ្ជាក់ការប្រគល់ឯកសារ</span><span class="lang-divider"> &nbsp;/&nbsp; </span><span class="lang-en">Proof of Document Delivery</span></div>
-    <div id="qrcode-container" style="position: absolute; top: 0mm; right: 0mm; width: 22mm; height: 22mm; border: 1.5pt solid var(--ink-bd); padding: 1mm; background: var(--paper); border-radius: 2mm;"></div>
+    <div id="barcode-container" style="position: absolute; right: 4mm; top: 2mm; width: 22mm; height: 22mm;"><canvas id="barcode-element" style="width: 100%; height: 100%; display: block;"></canvas></div>
   </div>
 
   <div class="pd-meta">
@@ -2084,8 +2085,7 @@ body.lang-bilingual #printDoc .pd-hint {
   </div>
 
   </div>
-</div>
-</div><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><script>
+</div></div><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script><script>
 /* ── logos ── */
 document.getElementById('formLogo').onerror = function(){ this.style.display='none'; };
 document.getElementById('pdLogo').onerror = function(){
@@ -2118,14 +2118,6 @@ function applyInk(colour) {
 
 /* ── modal ── */
 function openModal() { 
-  const taskType = document.querySelector('input[name="taskType"]:checked')?.value || 'Delivery';
-  if (taskType === 'Delivery') {
-    const receiverName = document.getElementById('receiverName').value.trim();
-    if (!receiverName) {
-      customAlert('សូមបញ្ចូលឈ្មោះអ្នកទទួល<br>Please enter Receiver Name');
-      return;
-    }
-  }
   document.getElementById('paperModal').classList.add('open'); 
 }
 function closeModal() { document.getElementById('paperModal').classList.remove('open'); }
@@ -2202,22 +2194,30 @@ function saveDocumentHistory() {
         }
       }
       
-      state.timestamp = new Date().toISOString();
-      state.id = Date.now().toString(36) + Math.random().toString(36).substr(2);
-      history.unshift(state);
-      localStorage.setItem('pod_document_history', JSON.stringify(history));
+      if (!state.id) {
+        state.timestamp = new Date().toISOString();
+        
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let uniqueStr = '';
+        for (let i = 0; i < 16; i++) {
+          uniqueStr += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        state.id = 'POD-' + Date.now().toString(36).toUpperCase() + '-' + uniqueStr;
+        
+        history.unshift(state);
+        localStorage.setItem('pod_document_history', JSON.stringify(history));
+      }
       
       // Generate QR Code for the generated ID
-      const qrContainer = document.getElementById('qrcode-container');
-      qrContainer.innerHTML = ''; // clear previous
-      new QRCode(qrContainer, {
-        text: state.id,
-        width: 70,
-        height: 70,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.L
-      });
+      const canvas = document.getElementById('barcode-element');
+      if (typeof QRCode !== 'undefined' && canvas) {
+        QRCode.toCanvas(canvas, state.id, {
+          width: 256,
+          margin: 1,
+          errorCorrectionLevel: 'H',
+          color: { dark: '#000000', light: '#ffffff' }
+        }, function(error) { if (error) console.error(error); });
+      }
     } catch(e) { console.error("Error saving document history", e); }
   }
 }
@@ -2233,12 +2233,33 @@ function selectColorAndPrint(colorVal) {
   
   if (typeof forceSaveAutocomplete === 'function') forceSaveAutocomplete();
   
-  saveDocumentHistory();
+  // Only save history and sync to cloud for NEW documents, not reprints
+  const isReprint = window._isReprintMode === true;
+  window._isReprintMode = false;
   
-  setTimeout(() => { if (typeof syncToCloud === 'function') syncToCloud(); }, 500);
+  if (!isReprint) {
+    saveDocumentHistory();
+  }
+  
+  const originalTitle = document.title;
+  try {
+    const stateStr = localStorage.getItem('pod_form_state');
+    if (stateStr) {
+      const state = JSON.parse(stateStr);
+      if (state.id) {
+        let cleanName = (state.receiverName || 'Delivery').replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, '_');
+        document.title = `POD_${cleanName}_${state.id}`;
+      }
+    }
+  } catch(e) {}
+  
+  if (!isReprint) {
+    setTimeout(() => { if (typeof syncToCloud === 'function') syncToCloud(); }, 500);
+  }
   setTimeout(() => {
     autoScale();
     window.print();
+    document.title = originalTitle;
   }, 80);
 }
 
@@ -2716,6 +2737,32 @@ function saveState() {
     rateKhrToUsd: document.getElementById('rateKhrToUsd')?.value || 4000,
     taskType: document.querySelector('input[name="taskType"]:checked')?.value || 'Delivery'
   };
+  
+  try {
+    const existingStr = localStorage.getItem('pod_form_state');
+    if (existingStr) {
+      const existing = JSON.parse(existingStr);
+      let isSame = true;
+      const keysToCompare = ['companyName', 'senderName', 'sendDate', 'receiverName', 'receiverContact', 'deliveryLoc', 'deliveryTitle', 'totalPages', 'rowCount'];
+      for (let k of keysToCompare) {
+        if ((state[k] || '') !== (existing[k] || '')) { isSame = false; break; }
+      }
+      if (isSame) {
+        for (let i=0; i<state.rowCount; i++) {
+          let a = state.itemData[i];
+          let b = existing.itemData[i];
+          if (!b || (a.name||'')!==(b.name||'') || (a.id||'')!==(b.id||'') || a.qty!==b.qty || (a.pages||'')!==(b.pages||'') || (a.remark||'')!==(b.remark||'')) {
+             isSame = false; break;
+          }
+        }
+      }
+      if (isSame && existing.id) {
+        state.id = existing.id;
+        state.timestamp = existing.timestamp;
+      }
+    }
+  } catch(e) {}
+  
   localStorage.setItem('pod_form_state', JSON.stringify(state));
   updateCalcRateNote();
 }
@@ -2751,7 +2798,7 @@ function loadState() {
           document.getElementById('senderName').value = state.senderName;
         }
       }
-      // if (state.receiverName !== undefined) document.getElementById('receiverName').value = state.receiverName; // Request: do not pre-fill
+      if (state.receiverName !== undefined) document.getElementById('receiverName').value = state.receiverName;
       if (state.receiverContact !== undefined) document.getElementById('receiverContact').value = state.receiverContact;
       if (state.deliveryLoc !== undefined) document.getElementById('deliveryLoc').value = state.deliveryLoc;
       if (state.deliveryTitle !== undefined) document.getElementById('deliveryTitle').value = state.deliveryTitle;
@@ -3467,23 +3514,23 @@ function initCalcDrag() {
     let itemsHtml = '';
     if (item.itemData && item.itemData.length > 0) {
       itemsHtml = `
-        <h3 style="margin-top:1.5rem; font-size:1rem; color:var(--dark);">Items</h3>
-        <table class="items-table">
-          <thead>
+        <h3 style="margin-top:1rem; margin-bottom:0.5rem; font-size:0.95rem; color:var(--dark);">Items</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+          <thead style="background: var(--input-bg);">
             <tr>
-              <th>Name</th>
-              ${item.showId ? '<th>ID</th>' : ''}
-              <th>Qty</th>
-              <th>Remark</th>
+              <th style="padding: 0.4rem; border-bottom: 1px solid var(--border);">Name</th>
+              ${item.showId ? '<th style="padding: 0.4rem; border-bottom: 1px solid var(--border);">ID</th>' : ''}
+              <th style="padding: 0.4rem; border-bottom: 1px solid var(--border);">Qty</th>
+              <th style="padding: 0.4rem; border-bottom: 1px solid var(--border);">Remark</th>
             </tr>
           </thead>
           <tbody>
             ${item.itemData.map(d => `
-              <tr>
-                <td>${d.name || '-'}</td>
-                ${item.showId ? '<td>' + (d.id || '-') + '</td>' : ''}
-                <td>${d.qty || 1}</td>
-                <td>${d.remark || '-'}</td>
+              <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 0.4rem;">${d.name || '-'}</td>
+                ${item.showId ? '<td style="padding: 0.4rem;">' + (d.id || '-') + '</td>' : ''}
+                <td style="padding: 0.4rem;">${d.qty || 1}</td>
+                <td style="padding: 0.4rem;">${d.remark || '-'}</td>
               </tr>
             `).join('')}
           </tbody>
@@ -3519,7 +3566,7 @@ function initCalcDrag() {
         </div>
       </div>
       ${itemsHtml}
-      <div style="margin-top: 2rem; display: flex; align-items: center; justify-content: center; padding-top: 1.5rem; border-top: 1px solid var(--border); gap: 1rem; width: 100%;">
+      <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: center; padding-top: 1rem; border-top: 1px solid var(--border); gap: 1rem; width: 100%;">
         ${!item.isVoided ? `
         <button class="btn-cancel" onclick="voidDocument('${item.id}')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.3rem; font-size: 0.8rem; padding: 0.65rem 0.5rem; background: var(--input-bg); color: var(--red); border-color: transparent; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
@@ -3552,21 +3599,19 @@ function initCalcDrag() {
     localStorage.setItem('pod_form_state', JSON.stringify(item));
     
     // Generate QR Code for the reprinted document
-    const qrContainer = document.getElementById('qrcode-container');
-    if (qrContainer) {
-      qrContainer.innerHTML = '';
-      new QRCode(qrContainer, {
-        text: item.id,
-        width: 70,
-        height: 70,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.L
-      });
+    const canvas = document.getElementById('barcode-element');
+    if (typeof QRCode !== 'undefined' && canvas) {
+      QRCode.toCanvas(canvas, item.id, {
+        width: 256,
+        margin: 1,
+        errorCorrectionLevel: 'H',
+        color: { dark: '#000000', light: '#ffffff' }
+      }, function(error) { if (error) console.error(error); });
     }
     
     loadState();
-    sync();
+    // Set reprint flag so selectColorAndPrint skips saveDocumentHistory and syncToCloud
+    window._isReprintMode = true;
     
     closeHistoryDetailModal();
     closeHistoryModal();
