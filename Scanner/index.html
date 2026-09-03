@@ -304,13 +304,15 @@
     document.getElementById('btnCancelScan').style.display = 'flex';
     
     if(!html5QrcodeScanner) {
-      html5QrcodeScanner = new Html5Qrcode("reader");
+      html5QrcodeScanner = new Html5Qrcode("reader", { 
+        formatsToSupport: [ Html5QrcodeSupportedFormats.CODE_128 ] 
+      });
     }
     
     try {
       await html5QrcodeScanner.start(
         { facingMode: "environment" },
-        { fps: 15, aspectRatio: window.innerWidth / window.innerHeight },
+        { fps: 10 },
         onScanSuccess,
         onScanFailure
       );
@@ -376,17 +378,20 @@
   async function onScanSuccess(decodedText, decodedResult) {
     if(!isScanning) return;
     
-    // Accept ONLY our unique QR code format (Must start with POD-)
-    if (!/^POD\-[A-Za-z0-9\-]{3,40}$/.test(decodedText)) {
-      if (lastInvalidQR !== decodedText) {
+    let text = decodedText.trim();
+    let match = text.match(/(POD\-[A-Za-z0-9\@\#\$\%\&\*\+\-\=\?\^\_\~]{10,50})/);
+    
+    // Accept ONLY our unique QR code format (Must contain POD-)
+    if (!match) {
+      if (lastInvalidQR !== text) {
         showFlash('red', "Invalid QR:\nUnrecognized format");
-        lastInvalidQR = decodedText;
-        setTimeout(() => { if (lastInvalidQR === decodedText) lastInvalidQR = ''; }, 3000);
+        lastInvalidQR = text;
+        setTimeout(() => { if (lastInvalidQR === text) lastInvalidQR = ''; }, 3000);
       }
       return; 
     }
     
-    let scannedId = decodedText;
+    let scannedId = match[1];
     
     if (recentScans.has(scannedId)) return;
     
