@@ -379,12 +379,12 @@
     if(!isScanning) return;
     
     let text = decodedText.trim();
-    let match = text.match(/(POD\-[A-Za-z0-9\@\#\$\%\&\*\+\-\=\?\^\_\~]{10,50})/);
+    let match = text.match(/(POD\-[^\s]{5,100})/);
     
     // Accept ONLY our unique QR code format (Must contain POD-)
     if (!match) {
       if (lastInvalidQR !== text) {
-        showFlash('red', "Invalid QR:\nUnrecognized format");
+        showFlash('red', "Invalid QR:\n" + text.substring(0, 50));
         lastInvalidQR = text;
         setTimeout(() => { if (lastInvalidQR === text) lastInvalidQR = ''; }, 3000);
       }
